@@ -25,7 +25,7 @@ Credits: Initial concept and development has been done by [AdaRoseEdwards](https
 
 | Property | Description | Default Value |
 | -------- | ----------- | ------------- |
-|          |             |               |
+| fps      | frequence to detect point position changed         |  0             |
 
 ### API (draw-curve)
 
@@ -81,18 +81,3 @@ version of A-Frame:
 angle install aframe-curve-component
 ```
 -->
-
-#### npm
-
-Install via npm:
-
-```bash
-npm install aframe-curve-component
-```
-
-Then require and use.
-
-```js
-require('aframe');
-require('aframe-curve-component');
-```
