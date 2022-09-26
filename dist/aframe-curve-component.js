@@ -446,7 +446,7 @@
 				'draw-curve': {},
 			},
 			mappings: {
-				target: 'draw-curve.curve',
+				curve: 'draw-curve.curve',
 				color: 'draw-curve.color'
 			}
 		});

@@ -16,33 +16,34 @@ Credits: Initial concept and development has been done by [AdaRoseEdwards](https
 
 ### API (curve)
 
-| Property | Description | Default Value |
-| -------- | ----------- | ------------- |
-| type         | Type of the Curve to draw. One ff: 'CatmullRom', 'CubicBezier', 'QuadraticBezier', 'Line'            | CatmullRom              |
-| closed         | Whether or not the curve should be drawn closed (connect the end and start point automatically)           | false              |
-| fps         | frequence to detect point position changed           | 0              |
+| Property | Description                                                                                           | Default Value |
+|----------|-------------------------------------------------------------------------------------------------------|---------------|
+| type     | Type of the Curve to draw. One of: 'CatmullRom', 'CubicBezier', 'QuadraticBezier', 'Line'             | CatmullRom    |
+| closed   | Whether or not the curve should be drawn closed (connect the end and start point automatically)       | false         |
+| fps      | frequence to detect point position changed, will update the curve when points position changed if > 0 | 0             |
 
 
 ### API (curve-point)
 
-| Property | Description | Default Value |
-| -------- | ----------- | ------------- |
-| fps      | frequence to detect point position changed         |  0             |
+| Property | Description                                | Default Value |
+|----------|--------------------------------------------|---------------|
+| fps      | frequence to detect point position changed | 0             |
 
 ### API (draw-curve)
 
-| Property | Description | Default Value |
-| -------- | ----------- | ------------- |
-| curve         | A Selector to identify the corresponding curve            | ''              |
+| Property | Description                                    | Default Value |
+|----------|------------------------------------------------|---------------|
+| curve    | A Selector to identify the corresponding curve | ''            |
 
 ### API (clone-along-curve)
 
-| Property | Description | Default Value |
-| -------- | ----------- | ------------- |
-| curve         | A Selector to identify the corresponding curve            | ''              |
-| spacing         | Spacing between the cloned entities in Meters            | 1              |
-| rotation         | Rotation of the cloned Entities            | '0 0 0'              |
-| scale         | Scale of the cloned entities            | '1 1 1'              |
+| Property | Description                                    | Default Value |
+|----------|------------------------------------------------|---------------|
+| curve    | A Selector to identify the corresponding curve | ''            |
+| spacing  | Spacing between the cloned entities in Meters  | 1             |
+| rotation | Rotation of the cloned Entities                | '0 0 0'       |
+| scale    | Scale of the cloned entities                   | '1 1 1'       |
+| tangent  | Children angle follow the path                 | false         |
 
 ### Installation
 
