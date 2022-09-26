@@ -9,7 +9,9 @@ AFRAME.registerComponent('tracker', {
     this.el.setAttribute('geometry', 'height', size);
     this.el.setAttribute('geometry', 'depth', size);
     this.el.setAttribute('material', 'color', '#FFF');
-  }
+    console.log(this.el.object3D)
+  },
+
 });
 
 
