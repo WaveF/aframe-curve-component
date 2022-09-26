@@ -18,8 +18,10 @@ Credits: Initial concept and development has been done by [AdaRoseEdwards](https
 
 | Property | Description | Default Value |
 | -------- | ----------- | ------------- |
-| type         | Type of the Curve to draw. One ff: 'CatmullRom', 'Spline', 'CubicBezier', 'QuadraticBezier', 'Line'            | CatmullRom              |
+| type         | Type of the Curve to draw. One ff: 'CatmullRom', 'CubicBezier', 'QuadraticBezier', 'Line'            | CatmullRom              |
 | closed         | Whether or not the curve should be drawn closed (connect the end and start point automatically)           | false              |
+| fps         | frequence to detect point position changed           | 0              |
+
 
 ### API (curve-point)
 

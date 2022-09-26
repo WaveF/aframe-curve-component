@@ -73,9 +73,13 @@
 
 		AFRAME.registerComponent('curve-point', {
 
-			//dependencies: ['position'],
+			dependencies: ['position'],
 		
 			schema: {
+				color: {
+					type: 'color',
+					default: '#fff'
+				},
 				fps: {
 					type: 'number',
 					default: 0
@@ -86,24 +90,23 @@
 				this.el.emit("curve-point-changed");
 		
 				this.oldPos = { ...this.el.object3D.position };
-		
-				this.loop(function(){
-					let newPos = { ...this.el.object3D.position };
-					if (JSON.stringify(this.oldPos) !== JSON.stringify(newPos)) {
-						this.el.emit("curve-point-changed");
-						this.oldPos = newPos;
-					}
-				}.bind(this), this.data.fps);
-			},
-		
-			changeHandler: function (event) {
-				if (event.detail.name == "position") {
-					this.el.emit("curve-point-changed");
+
+				if (this.data.fps > 0) {
+					this.loop(function(){
+						let newPos = { ...this.el.object3D.position };
+						if (JSON.stringify(this.oldPos) !== JSON.stringify(newPos)) {
+							this.el.emit("curve-point-changed");
+							this.oldPos = newPos;
+						}
+					}.bind(this), this.data.fps);
 				}
 			},
 		
 			loop: function (callback, fps) {
-				let fpsInterval = 1000 / fps, then = now = Date.now(), elapsedTime = 0;
+				let then = Date.now();
+				let now = then;
+				let elapsedTime = 0;
+				let fpsInterval = 1000 / fps;
 				let raf = () => {
 					requestAnimationFrame(raf);
 					now = Date.now();
@@ -115,7 +118,6 @@
 				};
 				raf();
 			}
-		
 		});
 		
 		
@@ -124,6 +126,10 @@
 			dependencies: ['curve-point'],
 		
 			schema: {
+				size: {
+					type: 'number',
+					default: .1
+				},
 				type: {
 					type: 'string',
 					default: 'CatmullRom',
@@ -142,12 +148,29 @@
 			init: function () {
 				this.pathPoints = null;
 				this.curve = null;
-				this.el.addEventListener("curve-point-changed", this.update.bind(this));
+
+				if (this.data.fps > 0) {
+					this.loop(this.update.bind(this), this.data.fps);
+				} else {
+					this.el.addEventListener("curve-point-changed", this.update.bind(this));
+				}
 			},
 		
 			update: function (oldData) {
-		
 				this.points = Array.from(this.el.querySelectorAll("a-curve-point, [curve-point]"));
+				this.points.forEach(point => {
+					const tagName = point.tagName.toLowerCase();
+					if (this.data.size > 0 && tagName === 'a-curve-point') {
+						point.setAttribute('geometry', 'primitive', 'box');
+						point.setAttribute('geometry', 'width',  this.data.size);
+						point.setAttribute('geometry', 'height', this.data.size);
+						point.setAttribute('geometry', 'depth',  this.data.size);
+						point.setAttribute('material', 'color', '#FFF');
+						point.setAttribute('material', 'transparent', true);
+						point.setAttribute('material', 'opacity', .5);
+					}
+				});
+
 		
 				if (this.points.length <= 1) {
 					console.warn("At least 2 curve-points needed to draw a curve");
@@ -155,12 +178,13 @@
 				} else {
 					// Get Array of Positions from Curve-Points
 					var pointsArray = this.points.map(function (point) {
-		
+						let pos;
 						if (point.x !== undefined && point.y !== undefined && point.z !== undefined) {
-							return point;
+							pos = point;
+						} else {
+							pos = point.object3D.getWorldPosition(new THREE.Vector3());
 						}
-		
-						return point.object3D.getWorldPosition(new THREE.Vector3());
+						return pos;
 					});
 		
 					// Update the Curve if either the Curve-Points or other Properties changed
@@ -193,7 +217,10 @@
 								this.curve = new THREE.CatmullRomCurve3(this.pathPoints);
 								break;
 							case 'Spline':
-								this.curve = new THREE.SplineCurve3(this.pathPoints);
+								let points = this.pathPoints.map(point => {
+									return new THREE.Vector2(point.x, point.y);
+								});
+								this.curve = new THREE.SplineCurve(points);
 								break;
 							default:
 								throw new Error('No Three constructor of type (case sensitive): ' + this.data.type + 'Curve3');
@@ -249,7 +276,24 @@
 				tempQuaternion.setFromUnitVectors(zAxis, tangent);
 				lineEnd.applyQuaternion(tempQuaternion);
 				return lineEnd;
-			}
+			},
+
+			loop: function (callback, fps) {
+				let then = Date.now();
+				let now = then;
+				let elapsedTime = 0;
+				let fpsInterval = 1000 / fps;
+				let raf = () => {
+					requestAnimationFrame(raf);
+					now = Date.now();
+					elapsedTime = now - then;
+					if (elapsedTime > fpsInterval) {
+						then = now - (elapsedTime % fpsInterval);
+						callback();
+					}
+				};
+				raf();
+			},
 		});
 		
 		
@@ -277,6 +321,10 @@
 			schema: {
 				curve: {
 					type: 'selector'
+				},
+				color: {
+					type: 'color',
+					default: '#f00'
 				}
 			},
 		
@@ -295,9 +343,9 @@
 						var lineGeometry = bufferGeometry.setFromPoints(this.curve.curve.getPoints(this.curve.curve.getPoints().length * 10));
 					}
 					this.el.setObject3D('mesh', new THREE.Line());
-					var mesh = this.el.object3D;
-					lineMaterial = mesh.material ? mesh.material : new THREE.LineBasicMaterial({
-						color: "#ff0000"
+
+					let lineMaterial = new THREE.LineBasicMaterial({
+						color: this.data.color
 					});
 		
 					this.el.setObject3D('mesh', new THREE.Line(lineGeometry, lineMaterial));
@@ -308,7 +356,6 @@
 				this.data.curve.removeEventListener('curve-updated', this.update.bind(this));
 				this.el.getObject3D('mesh').geometry = new THREE.Geometry();
 			}
-		
 		});
 		
 		
@@ -330,6 +377,10 @@
 				scale: {
 					type: 'vec3',
 					default: { x: 1, y: 1, z: 1 }
+				},
+				tangent: {
+					type: 'boolean',
+					default: false
 				}
 			},
 		
@@ -366,17 +417,15 @@
 		
 					parent.add(mesh);
 		
+					var tangent;
 					while (counter <= length) {
 						var child = parent.clone(true);
-		
 						child.position.copy(this.curve.curve.getPointAt(counter / length));
-		
 						tangent = this.curve.curve.getTangentAt(counter / length).normalize();
-		
-						child.quaternion.setFromUnitVectors(zAxis, tangent);
-		
+						if (this.data.tangent) {
+							child.quaternion.setFromUnitVectors(zAxis, tangent);
+						}
 						cloneMesh.add(child);
-		
 						counter += this.data.spacing;
 					}
 				}
@@ -397,7 +446,8 @@
 				'draw-curve': {},
 			},
 			mappings: {
-				curveref: 'draw-curve.curve',
+				target: 'draw-curve.curve',
+				color: 'draw-curve.color'
 			}
 		});
 		
@@ -417,6 +467,8 @@
 		
 			mappings: {
 				type: 'curve.type',
+				fps: 'curve.fps',
+				size: 'curve.size'
 			}
 		});		
 
