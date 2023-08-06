@@ -1,7 +1,7 @@
-<a-scene stats background="color:#000" vr-mode-ui="enabled:false" main>
+<a-scene stats background="color:#aaa" vr-mode-ui="enabled:false" main>
   <a-assets></a-assets>
 
-  <a-curve id="track1" type="CatmullRom" fps="60" size=".1" visible="true">
+  <a-curve id="track1" type="CatmullRom" fps="30" size=".08" visible="true">
     <a-curve-point position=" 0.0  0.5 0"></a-curve-point>
     <a-curve-point position="-1.5  0.5 0"></a-curve-point>
     <a-curve-point position="-1.8  .45 0"></a-curve-point>
@@ -14,7 +14,9 @@
 
   <a-draw-curve curve="#track1" color="#fc0" visible="true"></a-draw-curve>
 
-  <a-entity clone-along-curve="curve:#track1; spacing:0.15; scale:.1 .1 .1; tangent:false;" geometry="primitive:box; width:1; height:1; depth:1;" material="color:#06f;"></a-entity>
+  <!-- <a-entity clone-along-curve="curve:#track1; spacing:0.15; scale:.1 .1 .1; tangent:false;" geometry="primitive:box; width:1; height:1; depth:1;" material="color:#06f;"></a-entity> -->
+  <a-entity id="chain" clone-along-curve="curve:#track1; spacing:0.15; scale:.04 .04 .04; rotation:0 0 90; direction:chain;" gltf-model="url(chain.glb);"></a-entity>
+  <!-- <a-entity id="chain" clone-along-curve="curve:#track1; spacing:0.15; scale:.05 .05 .05; rotation:0 0 90; chain:true;" geometry="primitive:box; width:1; height:2; depth:1;" material="color:#06f;"></a-entity> -->
 
   <a-camera position="0 0.2 3"></a-camera>
 

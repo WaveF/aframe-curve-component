@@ -252,7 +252,6 @@
 				var bDistance = b.distanceTo(point);
 				var aSmaller = aDistance < bDistance;
 				if (currentRes < resolution) {
-		
 					var tangent = this.curve.getTangentAt(aSmaller ? aTest : bTest);
 					if (currentRes < resolution) return {
 						result: aSmaller ? aTest : bTest,
@@ -329,7 +328,9 @@
 			},
 		
 			init: function () {
-				this.data.curve.addEventListener('curve-updated', this.update.bind(this));
+				if (this.data.curve) {
+					this.data.curve.addEventListener('curve-updated', this.update.bind(this));
+				}
 			},
 		
 			update: function () {
@@ -378,9 +379,10 @@
 					type: 'vec3',
 					default: { x: 1, y: 1, z: 1 }
 				},
-				tangent: {
-					type: 'boolean',
-					default: false
+				direction: {
+					type: 'string',
+					default: 'default',
+					oneOf: ['default', 'tangent', 'chain']
 				}
 			},
 		
@@ -398,7 +400,8 @@
 		
 				if (!this.el.getObject3D('clones') && this.curve && this.curve.curve) {
 					var mesh = this.el.getObject3D('mesh');
-		
+					if (!mesh) return;
+
 					var length = this.curve.curve.getLength();
 					var start = 0;
 					var counter = start;
@@ -408,7 +411,6 @@
 					cloneMesh.clear();
 		
 					var degToRad = THREE.Math.degToRad;
-					var zAxis = new THREE.Vector3(0, 0, 1);
 		
 					var parent = new THREE.Object3D();
 					mesh.scale.set(this.data.scale.x, this.data.scale.y, this.data.scale.z);
@@ -417,14 +419,22 @@
 		
 					parent.add(mesh);
 		
-					var tangent;
+					var tangent, zAxis;
 					while (counter <= length) {
 						var child = parent.clone(true);
 						child.position.copy(this.curve.curve.getPointAt(counter / length));
 						tangent = this.curve.curve.getTangentAt(counter / length).normalize();
-						if (this.data.tangent) {
+
+						if (this.data.direction == 'tangent') {
+							zAxis = new THREE.Vector3(0, 0, 1);
 							child.quaternion.setFromUnitVectors(zAxis, tangent);
 						}
+						else if (this.data.direction == 'chain') {
+							zAxis = tangent.clone();
+							child.quaternion.setFromUnitVectors(zAxis, tangent);
+							child.rotation.z += Math.atan(tangent.y / tangent.x);
+						}
+						
 						cloneMesh.add(child);
 						counter += this.data.spacing;
 					}
